@@ -1,0 +1,90 @@
+---
+title: "Cepheids Period-Luminosity Relationship"
+output: html_document
+---
+This is a recreation of the analysis done by Henrietta Leavitt on 25 Cepheid variables observed in the Small Magellanic Cloud.  From this analysis, the Period-Luminosity relationship for Cepheid variables was derived, and applied as a standard candle to determine interstellar distances.
+
+Initial data from following paper:
+Title: Periods of 25 Variable Stars in the Small Magellanic Cloud.
+Authors: Leavitt, H. S. & Pickering, E. C.
+Journal: Harvard College Observatory Circular, vol. 173, pp.1-3
+Bibliographic Code: 1912HarCi.173....1L
+
+Link: http://articles.adsabs.harvard.edu/full/1912HarCi.173....1L
+
+Load the data
+
+```{r}
+cepheidData<-read.csv("data/cepheids.csv")
+```
+
+Preliminary plot of minimum
+
+```{r}
+plot(cepheidData$Min~log10(cepheidData$Period), ylim=rev(range(cepheidData$Min)))
+```
+
+Preliminary plot of maximum
+
+```{r}
+plot(cepheidData$Max~log10(cepheidData$Period), ylim=rev(range(cepheidData$Max)))
+```
+
+Preliminary fits
+```{r}
+modelMax<-lm(Max~log10(Period),data=cepheidData)
+modelMin<-lm(Min~log10(Period),data=cepheidData)
+```
+
+Distance to SMC is 197 +/- 9 kly (info from Wikipedia),
+or 61 +/1 kiloparsecs
+
+Calculations are in ky, so we need a conversion from parsec to ly
+
+```{r}
+parsec <- 3.26156
+```
+
+Absolute-apparent magnitude formula
+```{r}
+absMag <- function(appMag,distObj=10*parsec) {
+  return (appMag-5*(log10(distObj/parsec)-1))
+}
+```
+
+Apparent-absolute magnitude formula
+```{r}
+appMag <- function(absMag,distObj=10*parsec) {
+  return (absMag+5*(log10(distObj/parsec)-1))
+}
+```
+
+Calculating distance from absolute and apparent magnitudes
+```{r}
+distObj <- function(absMag,appMag) {
+  return (parsec*(10^(((appMag-absMag)/5)+1)))
+}
+```
+
+Converting data to long format
+
+```{r}
+distance<-200
+rawCeph <- read.csv("cepheids.csv")
+cleanCeph<-gather(rawCeph,magType,appMag,Min:Max)
+cleanCeph$absMag <- absMag(cleanCeph$appMag,distance)
+```
+
+and plotting in ggplot
+```{r}
+p <- ggplot(cleanCeph,aes(log(Period), absMag))
+p <- p + geom_point(aes(color=magType))
+p <- p + scale_y_reverse()
+p
+```
+
+doing fits on long data
+
+```{r}
+cephFitsApp <- fitCephData(cleanCeph)
+```
