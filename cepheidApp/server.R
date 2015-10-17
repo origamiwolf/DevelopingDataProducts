@@ -9,6 +9,8 @@ cleanCeph <- gather(rawCeph,magVal,appMag,Min:Max)
 
 shinyServer(function(input,output) {
 
+## computations
+  
   # use default distance to SMC to calculate absolute magnitude
   cephData <- reactive({
     processCephData(cleanCeph,input$smcDist)
@@ -18,7 +20,10 @@ shinyServer(function(input,output) {
 #   cephFitsApp <- reactive({
 #     fitCephData(cleanCeph,"appMag")    
 #   })
-    
+
+  
+### Output for plot tab
+  
   output$plot <- renderPlot({
     plotData<-cephData()
 
@@ -94,5 +99,10 @@ shinyServer(function(input,output) {
       textOut <- ""
     }
     HTML(textOut)
+  })
+
+  output$cepheidDataTable <- renderDataTable({
+    plotData<-cephData()
+    plotData[order(plotData$Period),]
   })
 })
