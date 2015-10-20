@@ -41,7 +41,24 @@ shinyUI(fluidPage(
           )
       )),
     tabPanel("Predictions",
-      fluidRow(includeHTML("predictText.html"))),
+      fluidRow(includeHTML("predictText.html")),
+      fluidRow(
+        column(4,wellPanel(title="Cepheid Observation Data",
+          tags$div(title="Fill in the period of the Cepheid variable in days",
+            numericInput("userPeriod","Period of Cepheid variable in days",
+            value=15,step=0.5)),
+          tags$div(title="Fill in the maximum apparent magnitude of the Cepheid variable",
+            numericInput("userAppMagMax","Maximum Apparent Magnitude",
+            value=14,step=0.5)),
+          tags$div(title="Fill in the minimum apparent magnitude of the Cepheid variable",
+            numericInput("userAppMagMin","Minimum Apparent Magnitude",
+            value=15,step=0.5))
+        )),
+        column(6,wellPanel(title="Model results:",       
+          htmlOutput("predictText")
+        ))
+      )
+    ),
     tabPanel("Help",
       fluidRow(includeHTML("helpText.html")))
   )

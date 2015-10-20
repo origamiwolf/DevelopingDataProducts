@@ -25,10 +25,10 @@ processCephData <- function(cephData, distance) {
   return (cephData)
 }
 
-fitCephData <- function(cephData,magType="appMag") {
-  fitMax <- lm(log10(Period)~magType,data=cephData[cephData$magVal=="Max",])
-  fitMin <- lm(log10(Period)~magType,data=cephData[cephData$magVal=="Min",])  
-  return (list(fitMax,fitMin)) 
+fitCephData <- function(cephData) {
+  fitMax <- lm(absMag~log10(Period),data=cephData[cephData$magVal=="Max",])
+  fitMin <- lm(absMag~log10(Period),data=cephData[cephData$magVal=="Min",])  
+  return (list(fitMax,fitMin))
 }
 
 getStarData <- function(cephData, H) {

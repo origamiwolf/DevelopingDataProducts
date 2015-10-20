@@ -16,11 +16,11 @@ shinyServer(function(input,output) {
     processCephData(cleanCeph,input$smcDist)
   })
 
-#   Not needed for now
-#   cephFitsApp <- reactive({
-#     fitCephData(cleanCeph,"appMag")    
-#   })
-
+  # model fits
+  cephFits <- reactive({
+    cephDataToFit<-cephData()
+    fitCephData(cephDataToFit)    
+  })
   
 ### Output for plot tab
   
@@ -89,11 +89,11 @@ shinyServer(function(input,output) {
       starText <- paste("Star H Number: ", starData[[1]])
       starText <- c(starText, paste("Period:", starData[[2]], " days", collapse=" "))
       starText <- c(starText, paste("Apparent Magnitude:", 
-                                    starData[[4]], "(Min) <--->",
-                                    starData[[6]], "(Max)", collapse=" "))
-      starText <- c(starText, paste("Absolute Magnitude:", 
                                     starData[[3]], "(Min) <--->",
                                     starData[[5]], "(Max)", collapse=" "))
+      starText <- c(starText, paste("Absolute Magnitude:", 
+                                    starData[[4]], "(Min) <--->",
+                                    starData[[6]], "(Max)", collapse=" "))
       textOut <- paste(starText, collapse="<br>")
     } else {
       textOut <- ""
@@ -101,8 +101,52 @@ shinyServer(function(input,output) {
     HTML(textOut)
   })
 
+## output for data table tab
+
   output$cepheidDataTable <- renderDataTable({
     plotData<-cephData()
     plotData[order(plotData$Period),]
   })
+
+## outputs for predictions tab
+  output$predictText <- renderUI({
+    modelFits <- cephFits()
+    absMagMaxPredict<- predict(modelFits[[1]],data.frame("Period"=c(input$userPeriod)))
+    absMagMinPredict<- predict(modelFits[[2]],data.frame("Period"=c(input$userPeriod)))
+
+    distMaxPredict <- distObj(absMagMaxPredict,input$userAppMagMax)
+    distMinPredict <- distObj(absMagMinPredict,input$userAppMagMin)
+
+    predictText <- "Predicted absolute magnitude of Cepheid:"
+    if(!is.na(absMagMaxPredict) && !is.infinite(absMagMaxPredict)) {
+      predictText<-c(predictText,paste("Using maximum magnitude fit: ", round(absMagMaxPredict,2)))
+      predictText<-c(predictText,paste("Using minimum magnitude fit: ", round(absMagMinPredict,2)))
+    } else {
+      predictText<-c(predictText,"A valid period is required for a prediction.")
+    }
+    
+    predictText<-c(predictText,"<br>")
+    
+    predictText<-c(predictText,"Predicted distance to Cepheid:")
+    if(!is.na(distMaxPredict) && (distMaxPredict > 0.5)) {
+      predictText<-c(predictText,paste("Using maximum magnitude fit: ", round(distMaxPredict,0), " kilo light years"))
+      maxPredictValid<-TRUE
+    } else {
+      maxPredictValid<-FALSE
+    }
+    if(!is.na(distMinPredict) && (distMinPredict > 0.5)) {    
+      predictText<-c(predictText,paste("Using minimum magnitude fit: ", round(distMinPredict,0), " kilo light years"))
+      minPredictValid<-TRUE
+    } else {
+      minPredictValid<-FALSE
+    }
+   
+    if (!(maxPredictValid || minPredictValid)) {
+      predictText<-c(predictText,"At least one valid magnitude is required for a prediction.")      
+    } 
+    
+    textOut<-paste(predictText,collapse="<br>")
+    HTML(textOut)
+  })
+
 })
