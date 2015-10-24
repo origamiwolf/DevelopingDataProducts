@@ -104,7 +104,7 @@ shinyServer(function(input,output) {
 ## output for data table tab
 
   output$cepheidDataTable <- renderDataTable({
-    plotData<-cephData()
+    plotData<-subset(cephData(),select=H:appMag)
     plotData[order(plotData$Period),]
   })
 
@@ -119,8 +119,8 @@ shinyServer(function(input,output) {
 
     predictText <- "Predicted absolute magnitude of Cepheid:"
     if(!is.na(absMagMaxPredict) && !is.infinite(absMagMaxPredict)) {
-      predictText<-c(predictText,paste("Using maximum magnitude fit: ", round(absMagMaxPredict,2)))
-      predictText<-c(predictText,paste("Using minimum magnitude fit: ", round(absMagMinPredict,2)))
+      predictText<-c(predictText,paste("Using maximum magnitude fit: <b>", round(absMagMaxPredict,2), "</b>"))
+      predictText<-c(predictText,paste("Using minimum magnitude fit: <b>", round(absMagMinPredict,2), "</b>"))
     } else {
       predictText<-c(predictText,"A valid period is required for a prediction.")
     }
@@ -129,13 +129,13 @@ shinyServer(function(input,output) {
     
     predictText<-c(predictText,"Predicted distance to Cepheid:")
     if(!is.na(distMaxPredict) && (distMaxPredict > 0.5)) {
-      predictText<-c(predictText,paste("Using maximum magnitude fit: ", round(distMaxPredict,0), " kilo light years"))
+      predictText<-c(predictText,paste("Using maximum magnitude fit: <b>", round(distMaxPredict,0), "</b> kilo light years"))
       maxPredictValid<-TRUE
     } else {
       maxPredictValid<-FALSE
     }
     if(!is.na(distMinPredict) && (distMinPredict > 0.5)) {    
-      predictText<-c(predictText,paste("Using minimum magnitude fit: ", round(distMinPredict,0), " kilo light years"))
+      predictText<-c(predictText,paste("Using minimum magnitude fit: <b>", round(distMinPredict,0), "</b> kilo light years"))
       minPredictValid<-TRUE
     } else {
       minPredictValid<-FALSE

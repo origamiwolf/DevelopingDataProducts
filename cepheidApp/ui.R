@@ -1,16 +1,20 @@
 #ui.R
 
 shinyUI(fluidPage(
-  titlePanel("Cepheid Period-Luminosity Relationship"),
+  titlePanel("Distance Estimates from Cepheid Period-Luminosity Relationship"),
   tabsetPanel(
     tabPanel("Introduction",
-      fluidRow(includeHTML("introText.html"))
+      fluidRow(column(12,includeHTML("introText.html")))
+    ),
+    tabPanel("How to Use",
+      fluidRow(column(12,includeHTML("howToText.html")))
     ),
     tabPanel("Data",
-        fluidRow(includeHTML("dataTableText.html")),
-        fluidRow(dataTableOutput(outputId="cepheidDataTable"))        
+        fluidRow(column(12,includeHTML("dataTableText.html"))),
+        fluidRow(column(12,dataTableOutput(outputId="cepheidDataTable")))        
     ),
     tabPanel("Plot",
+      fluidRow(column(12,h2("Plots"))),
       sidebarLayout(
         sidebarPanel(
           tags$div(title="Slide to adjust distance to Small Magellanic Cloud",
@@ -40,10 +44,12 @@ shinyUI(fluidPage(
                     htmlOutput("starInfo")            
           )
       )),
-    tabPanel("Predictions",
-      fluidRow(includeHTML("predictText.html")),
+    tabPanel("Distance Estimator",
       fluidRow(
-        column(4,wellPanel(title="Cepheid Observation Data",
+        column(12,
+          includeHTML("predictText.html"))),
+      fluidRow(
+        column(6,wellPanel(title="Cepheid Observation Data",
           tags$div(title="Fill in the period of the Cepheid variable in days",
             numericInput("userPeriod","Period of Cepheid variable in days",
             value=15,step=0.5)),
@@ -58,8 +64,6 @@ shinyUI(fluidPage(
           htmlOutput("predictText")
         ))
       )
-    ),
-    tabPanel("Help",
-      fluidRow(includeHTML("helpText.html")))
+    )
   )
 ))

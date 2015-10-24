@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Distance Estimates from Cepheid Period-Luminosity Relationship</title>
+  <meta name="description" content="">
+  <meta name="author" content="origamiwolf">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/reveal.min.css">
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/theme/default.css" id="theme">
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" id="theme">
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->  <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section class='' data-state='' id='slide-1'>
+  <h2>Distance Estimates from Cepheid Period-Luminosity Relationship</h2>
+  <p>A Project submission for Developing Data Products</p>
+
+</section>
+<section class='' data-state='' id='slide-2'>
+  <h2>Cepheid Period-Luminosity Relationship</h2>
+  <p><img src="assets/img/HSW.jpg" alt="Henrietta Swan Leavitt"></p>
+
+<p>Henrietta Swan Leavitt (1868 - 1921), American Astronomer</p>
+
+<p>Relationship between star&#39;s observed magnitude and period</p>
+
+<p>&quot;Periods of 25 Variable Stars in the Small Magellanic Cloud&quot;, Leavitt, H. S. &amp; Pickering, E. C., <em>Harvard College Observatory Circular</em>, <strong>173</strong>, 1 (1912)</p>
+
+</section>
+<section class='' data-state='' id='slide-3'>
+  <h2>Estimating Distances - Mathematics</h2>
+  <p>The Cepheid&#39;s period and apparent magnitude can be measured from Earth.  Using the Period-Luminosity Relationship, we can determine the absolute magnitude.</p>
+
+<p>Apparent (\( Mag_{app}\)) and absolute magnitude (\( Mag_{abs}\)) are related by distance (\( D\)):</p>
+
+<p>\(
+ Mag_{abs} = Mag_{app} - 5 ((\log_{10}{D}) - 1)
+\)</p>
+
+<p>Distances to Cepheids can therefore be estimated.</p>
+
+</section>
+<section class='' data-state='' id='slide-4'>
+  <h2>Estimating Distances - Code</h2>
+  <p>Model fits to Leavitt&#39;s Cepheid data are computed using a linear model:</p>
+
+<pre><code class="r">fitCephData &lt;- function(cephData) {
+  fitMax &lt;- lm(absMag~log10(Period),data=cephData[cephData$magVal==&quot;Max&quot;,])
+  fitMin &lt;- lm(absMag~log10(Period),data=cephData[cephData$magVal==&quot;Min&quot;,])  
+  return (list(fitMax,fitMin))
+}
+</code></pre>
+
+<p>The function relating apparent magnitude, absolute magnitude and distance.  Example: Vega&#39;s apparent and absolute magnitudes are 0.03 and 0.58 respectively, which gives a distance of 25 light years:</p>
+
+<pre><code class="r">distObj &lt;- function(absMag,appMag) {
+  return (parsec*(10^(((appMag-absMag)/5)+1)))
+}
+parsec &lt;- 3.26156
+distObj(0.58,0.03)
+</code></pre>
+
+<pre><code>## [1] 25.31777
+</code></pre>
+
+</section>
+<section class='' data-state='' id='slide-5'>
+  <h2>Using the Shiny App</h2>
+  <p>The Shiny app plots Leavitt&#39;s original data and uses that as a model for estimating distances to other Cepheids.</p>
+
+<p>To use the Shiny app, the user needs to feed in two parameters - period and apparent magnitude.  The app will then compute the absolute magnitude and distance.</p>
+
+<p>More details on the background and usage are found within the app itself.</p>
+
+</section>
+    </div>
+  </div>
+</body>
+  <script src="libraries/frameworks/revealjs/lib/js/head.min.js"></script>
+  <script src="libraries/frameworks/revealjs/js/reveal.min.js"></script>
+  <script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: Reveal.getQueryHash().theme || 'default', 
+    transition: Reveal.getQueryHash().transition || 'default', 
+    dependencies: [
+    // Cross-browser shim that fully implements classList -
+    // https://github.com/eligrey/classList.js/
+      { src: 'libraries/frameworks/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList;}},
+      // Zoom in and out with Alt+click
+      { src: 'libraries/frameworks/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Speaker notes
+      { src: 'libraries/frameworks/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      //{ src: 'libraries/frameworks/revealjs/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+  });
+  </script>  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+ 
+
+</html>
